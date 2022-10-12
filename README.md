@@ -1,4 +1,3 @@
-( * : 為團隊需自行修改部分 )
 # 幕後交易 kuhhandel
 
 # Intro your game
