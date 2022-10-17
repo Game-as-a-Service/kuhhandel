@@ -15,8 +15,8 @@ public class AuctionSellerController {
 		return animal;
 	}
 
-	public Map<String, Object> auctionBegin(String partNumber, Animal animal) {
-		Map<String, Object> map = auctionSellerService.auctionBegin(partNumber, animal);
+	public Map<String, Object> auctionBegin(String barkUser,String partNumber, Animal animal) {
+		Map<String, Object> map = auctionSellerService.auctionBegin(barkUser,partNumber, animal);
 		return map;
 	}
 

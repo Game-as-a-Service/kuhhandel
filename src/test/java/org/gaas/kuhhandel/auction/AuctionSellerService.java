@@ -1,7 +1,5 @@
 package org.gaas.kuhhandel.auction;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,15 +7,16 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+
 public class AuctionSellerService {
 
 	private PlayHistoryRepositor playHistoryRepositor;
-	PlayRespository respository;
+	PlayRespository playRespository;
 	PlayHistory playHistory;
-
-	public AuctionSellerService(PlayHistoryRepositor playHistoryRepositor,PlayRespository respository,PlayHistory playHistory) {
+	
+	public AuctionSellerService(PlayHistoryRepositor playHistoryRepositor,PlayRespository playRespository,PlayHistory playHistory) {
 		this.playHistoryRepositor = playHistoryRepositor;
-		this.respository=respository;
+		this.playRespository=playRespository;
 		this.playHistory=playHistory;
 	}
 
@@ -75,11 +74,11 @@ public class AuctionSellerService {
 	 * @param animal     拍賣動物卡
 	 * @return
 	 */
-	public Map<String, Object> auctionBegin(String partNumber, Animal animal) {
+	public Map<String, Object> auctionBegin(String barkUser,String partNumber, Animal animal) {
 		Map<String, Object> map = new HashMap<>();
 		int amount = 0;
 		try {
-			amount = bark(partNumber, animal);
+			amount = bark(barkUser,partNumber, animal);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,7 +101,7 @@ public class AuctionSellerService {
 	 * @param animal
 	 */
 	public void getFreeCard(Animal animal) {
-		respository.update(animal);
+		playRespository.update(animal);
 	}
 
 	/**
@@ -113,36 +112,83 @@ public class AuctionSellerService {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	private int bark(String partNumber, Animal animal) throws InterruptedException {
+	private int bark(String barkUser,String partNumber, Animal animal) throws InterruptedException {
 		int bidAmount = 0;
 		int barkNumber = 1;
-		boolean testbark = true;
+		String barkChangerUser="";
 		for (int i = 1; barkNumber < 4; i++) {
 			TimeUnit.SECONDS.sleep(1);
 			playHistory = playHistoryRepositor.findNewBarkPart(partNumber);
-			if (testbark) {
-				if (barkNumber == 3) {
-					playHistory = PlayHistory.builder().playId("use123").money(30).isGetData(true)
-							.creatTime(new Timestamp(new Date().getTime())).partNumber(partNumber).build();
-
-					testbark = false;
-					i = 0;
-				}
-			}
-			// 沒人喊價
+			System.out.println(playHistory);
 			if (playHistory != null) {
-				boolean newBark = playHistory.isGetData();
-				if (newBark) {
-					bidAmount = playHistory.getMoney();
-					barkNumber = 1;
+				barkChangerUser=playHistory.getPlayId()==null?"":playHistory.getPlayId();
+			}
+			if(!"".equals(barkChangerUser)){
+				if(!barkChangerUser.equals(barkUser)) {
+					int amount=playHistory.getMoney();
+					if(amount>=bidAmount+10) {
+						barkUser=barkChangerUser;
+						bidAmount = playHistory.getMoney();
+						i=1;
+						barkNumber=1;
+						playHistoryRepositor.update(playHistory);
+					}
 				}
 			}
 			System.out.println("動物" + animal.getDesc() + "，價錢:" + bidAmount + "，第" + barkNumber + "幾次喊價");
-			playHistoryRepositor.insert();
 			barkNumber++;
-
 		}
+		System.out.println("成交");
 		return bidAmount;
+	}
+	/**
+	 * @param playUser 	 購買人員
+	 * @param partNumber 拍賣桌號
+	 * @param buyAmount	 結標金額
+	 * @param animal	 拍賣動物卡
+	 * @param isBuy		 是否購買得標商品
+	 */
+	public Map<String, Object> buyAuction(String playUser,String partNumber, int buyAmount, Animal animal,boolean isBuy) {
+		Map<String,Object> map=new HashMap<>();
+		if(isBuy) {
+			PlayUser playUserData= playRespository.find(playUser);
+			
+			if(playUserData!=null) {
+				HardCard hardCard = playUserData.getHardCard() == null ? new HardCard() : playUserData.getHardCard();
+				Integer amount=playUserData.getAmount()==null?0:playUserData.getAmount();
+				if(amount>=buyAmount) {
+					amount=amount-buyAmount;
+					List<Animal> hardAnimalCard = hardCard.getAnimalCard();					
+					System.out.println(hardAnimalCard);
+					hardAnimalCard.add(animal);
+					hardCard.setAnimalCard(hardAnimalCard);
+					playUserData.setHardCard(hardCard);
+					playUserData.setAmount(amount);
+					System.out.println("購買後:"+hardAnimalCard);
+					System.out.println("購買後:"+playUserData);
+					playRespository.update(playUserData);
+					System.out.println("購買成功，獲得卡片");
+					map.put("status", "success");
+					map.put("msg", "賣方獲得卡");
+				}else {
+					System.out.println("角色金額不足");
+					//需顯示底牌
+					System.out.println(hardCard.getAmountCard());
+					map.put("status", "error");
+					map.put("msg", "角色金額不足,顯示卡片");
+				}
+			}else {
+				System.out.println("查無此人員，交易失敗");	
+				map.put("status", "error");
+				map.put("msg", "交易異常，查無此人員");
+				
+			}
+		}else {
+			System.out.println("賣方不購買");	
+			map.put("status", "error");
+			map.put("msg", "賣方不交易");
+		}
+		return map;
 	}
 
 }
