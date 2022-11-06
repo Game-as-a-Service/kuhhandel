@@ -10,8 +10,16 @@
 
 
 # My Practice Stack
-- BDD (Example Mapping）、三層式架構
+- Event Storming
+- Example Mapping
+- ATDD
+- OOAD
+- 三層式架構
 
 ### Tech Stack
 - `frontend:` vue3
 - `backend:` java, netty, websocket, spring boot, redis,  postgresql
+
+# 開會紀錄討論
+
+https://miro.com/app/board/uXjVPIGs3WE=/?share_link_id=874701518070
