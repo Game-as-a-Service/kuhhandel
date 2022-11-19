@@ -1,8 +1,8 @@
-package org.gaas.kuhhandel.auction.Bean;
+package org.gaas.kuhhandel.bean;
 
 import java.util.List;
 
-import org.gaas.kuhhandel.auction.eum.Animal;
+import org.gaas.kuhhandel.eum.Animal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HardCard {
+public class HandCard {
 	private Integer hardCardId;
 	private String userId;
 	private List<Animal> animalCard;
-	private List<Integer> amountCard;
+	private List<MoneyCard> moneyCards;
 	
 }

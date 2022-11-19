@@ -1,6 +1,6 @@
-package org.gaas.kuhhandel.auction.Bean;
+package org.gaas.kuhhandel.bean;
 
-import org.gaas.kuhhandel.auction.eum.Animal;
+import org.gaas.kuhhandel.eum.Animal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

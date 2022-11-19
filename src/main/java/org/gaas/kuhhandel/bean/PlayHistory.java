@@ -1,4 +1,4 @@
-package org.gaas.kuhhandel.auction.Bean;
+package org.gaas.kuhhandel.bean;
 
 
 

@@ -1,4 +1,4 @@
-package org.gaas.kuhhandel.auction.Bean;
+package org.gaas.kuhhandel.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,5 +12,5 @@ public class PlayUser {
 	private String id;
 	private Integer amount;
 	private Integer hardCardId;
-	private HardCard hardCard;
+	private HandCard hardCard;
 }

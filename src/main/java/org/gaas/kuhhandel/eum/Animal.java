@@ -1,4 +1,4 @@
-package org.gaas.kuhhandel.auction.eum;
+package org.gaas.kuhhandel.eum;
 
 public enum Animal {
 	HORSE(1,"horse","馬", 1000),
