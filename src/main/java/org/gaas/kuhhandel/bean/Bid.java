@@ -23,8 +23,10 @@ public class Bid implements Serializable{
 	private GameStatusEnum resultStatus;
 	private String initiateTraderId;
 	private String respondentId;
-	private HashMap<AnimalCardEnum, Integer> animalCardMap;
-	private List<MoneyCard> moneyCards;
+    private HashMap<AnimalCardEnum, Integer> animalCardMap ;
+    private List<MoneyCard> moneyCards;
+    private HashMap<AnimalCardEnum, Integer> respondentAnimalCardMap;
+    private List<MoneyCard> respondentMoneyCards;
 	private Integer tradingCount = Integer.valueOf(0);
 
 }
