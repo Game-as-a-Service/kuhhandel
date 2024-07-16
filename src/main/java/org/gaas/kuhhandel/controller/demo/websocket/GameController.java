@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.gaas.kuhhandel.bean.demo.websocket.Player;
 import org.gaas.kuhhandel.bean.demo.websocket.ResponseData;
 import org.gaas.kuhhandel.bean.demo.websocket.Room;
-import org.gaas.kuhhandel.service.RoomService;
+import org.gaas.kuhhandel.service.demo.websocket.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;

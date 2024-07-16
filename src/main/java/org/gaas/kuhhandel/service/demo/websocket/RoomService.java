@@ -1,11 +1,12 @@
-package org.gaas.kuhhandel.service;
+package org.gaas.kuhhandel.service.demo.websocket;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.gaas.kuhhandel.bean.Room;
+import org.gaas.kuhhandel.bean.demo.websocket.Room;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("demo.websocket.RoomService")
 public class RoomService {
 	private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 

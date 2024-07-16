@@ -15,7 +15,7 @@ import org.gaas.kuhhandel.bean.Game;
 import org.gaas.kuhhandel.bean.HandCard;
 import org.gaas.kuhhandel.bean.MoneyCard;
 import org.gaas.kuhhandel.bean.PlayUser;
-import org.gaas.kuhhandel.bean.demo.websocket.RoomB;
+import org.gaas.kuhhandel.bean.Room;
 import org.gaas.kuhhandel.eum.AnimalCardEnum;
 import org.gaas.kuhhandel.eum.ControllerTypeEnum;
 import org.gaas.kuhhandel.eum.GameStatusEnum;
@@ -37,13 +37,13 @@ public class kuhhandelTest {
 
 	}
 
-	private PlayUser initRespondent(Game game, String id, HashMap<AnimalCardEnum, Integer> animalCardMap, List<MoneyCard> respondentMoneyCards) {
+	private PlayUser initRespondent(Room room, Game game, String id, HashMap<AnimalCardEnum, Integer> animalCardMap, List<MoneyCard> respondentMoneyCards) {
 		HandCard respondentHandCard = new HandCard(id, animalCardMap, respondentMoneyCards);
-		PlayUser playUser = new PlayUser(game, id, 2, 50, 0, respondentHandCard);
+		PlayUser playUser = new PlayUser(room, game, id, 2, 50, 0, respondentHandCard);
 		return Mockito.spy(playUser);
 	}
 
-	private PlayUser initTrader(Game game, String id) {
+	private PlayUser initTrader(Room room, Game game, String id) {
 		HashMap<AnimalCardEnum, Integer> animalCardMap = new HashMap<>();
 		animalCardMap.put(AnimalCardEnum.HORSE, 1);
 		animalCardMap.put(AnimalCardEnum.DOG, 1);
@@ -53,7 +53,7 @@ public class kuhhandelTest {
 		initiateTraderMoneyCards.add(iTmoneyCard1);
 		initiateTraderMoneyCards.add(iTmoneyCard2);
 		HandCard initiateTraderHandCard = new HandCard(id, animalCardMap, initiateTraderMoneyCards);
-		PlayUser playUser = new PlayUser(game, id, 2, 60, 0, initiateTraderHandCard);
+		PlayUser playUser = new PlayUser(room, game, id, 2, 60, 0, initiateTraderHandCard);
 		return Mockito.spy(playUser);
 	}
 
@@ -62,19 +62,19 @@ public class kuhhandelTest {
 	 */
 	@Test
 	public void givenNexRroundStarts_whenTrading_thenUpdateGameData() {
-		RoomB room = new RoomB();
-		room.setId(RandomIdUtils.generateRandomId());
-		room.setName("Room");
-		ConcurrentHashMap<String, PlayUser> players = room.getPlayers();
 		Game game = new Game();
 		game.setGameId(RandomIdUtils.generateRandomId());
-		game.setRoom(room);
 		game.setCurrentRound(7);
 		game.setGameStatus(GameStatusEnum.ROUND_STARTS);
 		game.setController(ControllerTypeEnum.PLAYER);
+		Room room = new Room();
+		room.setGame(game);
+		room.setId(RandomIdUtils.generateRandomId());
+		room.setName("Room");
+		ConcurrentHashMap<String, PlayUser> players = room.getPlayers();
 		
 		// 初始化發起交易者手牌
-		PlayUser playUserA = initTrader(game, "1");
+		PlayUser playUserA = initTrader(room, game, "1");
 		players.put(playUserA.getId(), playUserA);
 
 		// 初始化回答者手牌
@@ -83,7 +83,7 @@ public class kuhhandelTest {
 		List<MoneyCard> respondentMoneyCardsB = new ArrayList<MoneyCard>();
 		respondentMoneyCardsB.add(new MoneyCard(50, 2));
 		respondentMoneyCardsB.add(new MoneyCard(200, 1));
-		PlayUser playUserB = initRespondent(game, "2", animalCardMapB, respondentMoneyCardsB);
+		PlayUser playUserB = initRespondent(room, game, "2", animalCardMapB, respondentMoneyCardsB);
 		players.put(playUserB.getId(), playUserB);
 		
 		HashMap<AnimalCardEnum, Integer> animalCardMapC = new HashMap<>();
@@ -91,7 +91,7 @@ public class kuhhandelTest {
 		List<MoneyCard> respondentMoneyCardsC = new ArrayList<MoneyCard>();
 		respondentMoneyCardsC.add(new MoneyCard(50, 2));
 		respondentMoneyCardsC.add(new MoneyCard(200, 1));
-		PlayUser playUserC = initRespondent(game, "3", animalCardMapC, respondentMoneyCardsC);
+		PlayUser playUserC = initRespondent(room, game, "3", animalCardMapC, respondentMoneyCardsC);
 		players.put(playUserC.getId(), playUserC);
 		
 		game.setCurrentPlayerId(playUserA.getId());
@@ -122,19 +122,19 @@ public class kuhhandelTest {
 	 */
 	@Test
 	public void givenValidBid_whenAcceptBid_thenUpdateGameData() {
-		RoomB room = new RoomB();
-		room.setId(RandomIdUtils.generateRandomId());
-		room.setName("Room");
-		ConcurrentHashMap<String, PlayUser> players = room.getPlayers();
 		Game game = new Game();
 		game.setGameId(RandomIdUtils.generateRandomId());
-		game.setRoom(room);
 		game.setCurrentRound(9);
 		game.setGameStatus(GameStatusEnum.TRADING_PLAYER);
 		game.setController(ControllerTypeEnum.PLAYER);
+		Room room = new Room();
+		room.setGame(game);
+		room.setId(RandomIdUtils.generateRandomId());
+		room.setName("Room");
+		ConcurrentHashMap<String, PlayUser> players = room.getPlayers();
 		
 		// 初始化發起交易者手牌
-		PlayUser playUserA = initTrader(game, "1");
+		PlayUser playUserA = initTrader(room, game, "1");
 		players.put(playUserA.getId(), playUserA);
 
 		// 初始化回答者手牌
@@ -143,7 +143,7 @@ public class kuhhandelTest {
 		List<MoneyCard> respondentMoneyCardsB = new ArrayList<MoneyCard>();
 		respondentMoneyCardsB.add(new MoneyCard(50, 2));
 		respondentMoneyCardsB.add(new MoneyCard(200, 1));
-		PlayUser playUserB = initRespondent(game, "2", animalCardMapB, respondentMoneyCardsB);
+		PlayUser playUserB = initRespondent(room, game, "2", animalCardMapB, respondentMoneyCardsB);
 		players.put(playUserB.getId(), playUserB);
 		
 		HashMap<AnimalCardEnum, Integer> animalCardMapC = new HashMap<>();
@@ -151,7 +151,7 @@ public class kuhhandelTest {
 		List<MoneyCard> respondentMoneyCardsC = new ArrayList<MoneyCard>();
 		respondentMoneyCardsC.add(new MoneyCard(50, 2));
 		respondentMoneyCardsC.add(new MoneyCard(200, 1));
-		PlayUser playUserC = initRespondent(game, "3", animalCardMapC, respondentMoneyCardsC);
+		PlayUser playUserC = initRespondent(room, game, "3", animalCardMapC, respondentMoneyCardsC);
 		players.put(playUserC.getId(), playUserC);
 		
 		game.setCurrentPlayerId(playUserB.getId());
