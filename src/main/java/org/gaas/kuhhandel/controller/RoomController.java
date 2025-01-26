@@ -1,15 +1,14 @@
-package org.gaas.kuhhandel.controller.demo.websocket;
+package org.gaas.kuhhandel.controller;
 
 import java.io.IOException;
 import java.util.Map;
 
-import org.gaas.kuhhandel.bean.demo.websocket.Player;
+import org.gaas.kuhhandel.bean.PlayUser;
+import org.gaas.kuhhandel.bean.Room;
 import org.gaas.kuhhandel.bean.demo.websocket.ResponseData;
-import org.gaas.kuhhandel.bean.demo.websocket.Room;
-import org.gaas.kuhhandel.service.demo.websocket.RoomService;
+import org.gaas.kuhhandel.service.RoomService;
 import org.gaas.kuhhandel.utils.RandomIdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -24,19 +23,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Controller("demo.websocket.RoomController")
+@Controller
 public class RoomController {
 
 	@Autowired
     private RoomService roomService;
 
-    @GetMapping("/api/rooms")
+    @GetMapping("/rooms")
     @ResponseBody
     public ResponseData listRooms() {
         return ResponseData.ok(roomService.getRooms());
     }
 
-    @PostMapping("/api/rooms")
+    @PostMapping("/rooms")
     @ResponseBody
     public ResponseData createRoom(@RequestBody Room room) {
         String roomId = RandomIdUtils.generateRandomId();
@@ -45,9 +44,9 @@ public class RoomController {
         return ResponseData.ok(room);
     }
 
-    @PostMapping("/api/rooms/{roomId}/join")
+    @PostMapping("/rooms/{roomId}/join")
     @ResponseBody
-    public ResponseData joinRoom(@PathVariable String roomId, @RequestBody Player player) {
+    public ResponseData joinRoom(@PathVariable String roomId, @RequestBody PlayUser player) {
         Room room = roomService.getRooms().get(roomId);
         
 		if (room == null) {
@@ -64,12 +63,13 @@ public class RoomController {
 		}
 		
 		player.setStatus(0); // Not prepared
+		player.setRoom(room);
 		room.getPlayers().put(playerId, player);
 		
         return ResponseData.ok(room);
     }
 
-    @PostMapping("/api/rooms/{roomId}/exit")
+    @PostMapping("/rooms/{roomId}/exit")
     @ResponseBody
     public ResponseData exitRoom(@PathVariable String roomId, @RequestParam String playerId) {
         Room room = roomService.getRooms().get(roomId);
@@ -79,9 +79,9 @@ public class RoomController {
         return ResponseData.ok(room);
     }
 
-    @MessageMapping("/ws/rooms/{roomId}/status")
-    @SendTo("/ws/topic/rooms/{roomId}")
-    public ResponseData updateStatus(@DestinationVariable String roomId, Player player) {
+    @MessageMapping("/rooms/{roomId}/status")
+    @SendTo("/topic/rooms/{roomId}")
+    public ResponseData updateStatus(@DestinationVariable String roomId, PlayUser player) {
         Room room = roomService.getRooms().get(roomId);
         
 		if (room == null) {
@@ -90,7 +90,7 @@ public class RoomController {
         
         if (room != null && room.getPlayers().containsKey(player.getId())) {
             if (player.getStatus() == 0 || player.getStatus() == 1) {
-                room.getPlayers().put(player.getId(), player);
+                room.getPlayers().get(player.getId()).setStatus(player.getStatus());
             } else {
                 throw new RuntimeException("Invalid status");
             }
@@ -98,8 +98,8 @@ public class RoomController {
         return ResponseData.ok(room);
     }
 
-    @MessageMapping("/ws/rooms/{roomId}/start")
-    @SendTo("/ws/topic/rooms/{roomId}")
+    @MessageMapping("/rooms/{roomId}/start")
+    @SendTo("/topic/rooms/{roomId}")
     public ResponseData startGame(@DestinationVariable String roomId) {
         Room room = roomService.getRooms().get(roomId);
         if (room != null) {
@@ -114,8 +114,8 @@ public class RoomController {
         return ResponseData.ok(room);
     }
 
-    @MessageMapping("/ws/rooms/{roomId}/talk")
-    @SendTo("/ws/topic/rooms/{roomId}/talk")
+    @MessageMapping("/rooms/{roomId}/talk")
+    @SendTo("/topic/rooms/{roomId}")
     public ResponseData talk(@DestinationVariable String roomId, @Payload String payload) {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> payloadMap;

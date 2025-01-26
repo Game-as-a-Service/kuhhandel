@@ -13,16 +13,24 @@ import org.gaas.kuhhandel.interfaces.Bidder;
 import org.gaas.kuhhandel.interfaces.InitiateTrader;
 import org.gaas.kuhhandel.interfaces.Respondent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.AllArgsConstructor;
 //import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+@JsonInclude(Include.NON_NULL)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayUser implements Auctioneer, Bidder, InitiateTrader, Respondent {
+	@JsonIgnore
+	private Room room;
+	@JsonIgnore
 	private Game game;
 	private String id;
 	private int status; // 0: Not prepared, 1: Ready to go, 2: In the game
@@ -75,6 +83,8 @@ public class PlayUser implements Auctioneer, Bidder, InitiateTrader, Respondent 
 		
 		return null;
 	}
+	
+	@JsonIgnore
 	public Boolean isCurrentPlayer() {
 		if (!id.equals(game.getCurrentPlayerId())) {
 			System.out.println("Not current player: " + id + " != " + game.getCurrentPlayerId());
@@ -90,7 +100,7 @@ public class PlayUser implements Auctioneer, Bidder, InitiateTrader, Respondent 
 		List<BidOption> result = new ArrayList<>();
 		HashMap<AnimalCardEnum, Integer> currentPlayerAnimalCardMap = handCard.getAnimalCardMap();
 		
-		ConcurrentHashMap<String, PlayUser> players = game.getRoom().getPlayers();
+		ConcurrentHashMap<String, PlayUser> players = room.getPlayers();
 		for(PlayUser player : players.values()) {
 			if (id.equals(player.getId())) continue;
 			
